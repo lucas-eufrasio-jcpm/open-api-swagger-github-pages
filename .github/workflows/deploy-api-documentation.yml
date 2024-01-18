@@ -3,8 +3,11 @@ on:
   push:
     branches:
       - api-documentation-github-pages
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        description: The environment that the documentation points to
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -36,14 +39,14 @@ jobs:
           WORKFLOW_FILENAME: deploy-api-documentation.yml
           ARTIFACT_NAME: github-pages
           ARTIFACT_FILENAME: github-pages.zip
-          UNZIP_DIR: uia
+          UNZIP_DIR: github-pages-artifacts
         with:
           script: |
             const script = require('./scripts/download-artifact-from-previous-run.js')
             await script({github, context, core})      
 
       - name: extract github pages artifact
-        run: tar -xvf uia/artifact.tar -C uia
+        run: tar -xvf github-pages-artifacts/artifact.tar -C github-pages-artifacts
 
       - name: List files
         run: ls -R
@@ -69,22 +72,29 @@ jobs:
         env:
           RELEASE_TAG: ${{ steps.swagger-ui.outputs.release_tag }}
           OPENAPI_FILE: "openapi.json"
+          ENVIRONMENT: ${{ inputs.environment || 'test' }}
         run: |
           # Creates the docs-dist folder
           mkdir -p docs-dist
-          mv docs/openapi.json docs-dist/openapi.json
+          cp github-pages-artifacts/test docs-dist/test 
+          cp github-pages-artifacts/dev docs-dist/dev 
+          cp github-pages-artifacts/hml docs-dist/hml 
+          cp github-pages-artifacts/prd docs-dist/prd 
+          mkdir -p docs-dist/$ENVIRONMENT
+          mv docs/openapi.json docs-dist/$ENVIRONMENT/openapi.json
+          cp docs/api-documentation-index.html docs-dist/index.html
           # Download the release
           curl -sL -o $RELEASE_TAG https://api.github.com/repos/swagger-api/swagger-ui/tarball/$RELEASE_TAG
           # Extract the dist directory
           tar -xzf $RELEASE_TAG --strip-components=1 -C ./docs-dist $(tar -tzf $RELEASE_TAG | head -1 | cut -f1 -d"/")/dist
           rm $RELEASE_TAG
           # Move index.html to the docs-dist folder
-          mv docs-dist/dist/index.html docs-dist/index.html
+          mv docs-dist/dist/index.html docs-dist/$ENVIRONMENT/index.html
           # Fix references in docs-dist/dist/swagger-initializer and index.html
           sed -i "s|https://petstore.swagger.io/v2/swagger.json|$OPENAPI_FILE|g" docs-dist/dist/swagger-initializer.js
-          sed -i "s|href=\"./|href=\"dist/|g" ./docs-dist/index.html
-          sed -i "s|src=\"./|src=\"dist/|g" ./docs-dist/index.html
-          sed -i "s|href=\"index|href=\"dist/index|g" ./docs-dist/index.html
+          sed -i "s|href=\"./|href=\"../dist/|g" docs-dist/$ENVIRONMENT/index.html
+          sed -i "s|src=\"./|src=\"../dist/|g" docs-dist/$ENVIRONMENT/index.html
+          sed -i "s|href=\"index|href=\"../dist/index|g" docs-dist/$ENVIRONMENT/index.html
           # Update current release
           # echo ${{ steps.swagger-ui.outputs.release_tag }} > swagger-ui.version
 

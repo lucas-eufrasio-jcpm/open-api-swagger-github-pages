@@ -30,24 +30,22 @@ jobs:
           RELEASE_TAG: ${{ steps.swagger-ui.outputs.release_tag }}
           OPENAPI_FILE: "openapi.json"
         run: |
-          # Delete the dist directory and index.html
-          rm -fr dist index.html
           # Creates the docs-dist folder
           mkdir docs-dist
           # Download the release
           curl -sL -o $RELEASE_TAG https://api.github.com/repos/swagger-api/swagger-ui/tarball/$RELEASE_TAG
           # Extract the dist directory
-          tar -xzf $RELEASE_TAG --strip-components=1 $(tar -tzf $RELEASE_TAG | head -1 | cut -f1 -d"/")/dist
+          tar -xzf $RELEASE_TAG --strip-components=1 -C ./swagger-ui $(tar -tzf $RELEASE_TAG | head -1 | cut -f1 -d"/")/dist
           rm $RELEASE_TAG
           # Move index.html to the docs-dist folder
-          mv dist/index.html ./docs-dist/
-          # Fix references in dist/swagger-initializer and index.html
-          sed -i "s|https://petstore.swagger.io/v2/swagger.json|$OPENAPI_FILE|g" dist/swagger-initializer.js
-          sed -i "s|href=\"./|href=\"dist/|g" index.html
-          sed -i "s|src=\"./|src=\"dist/|g" index.html
-          sed -i "s|href=\"index|href=\"dist/index|g" index.html
+          mv swagger-ui/dist/index.html ./docs-dist/
+          # Fix references in swagger-ui/dist/swagger-initializer and index.html
+          sed -i "s|https://petstore.swagger.io/v2/swagger.json|$OPENAPI_FILE|g" swagger-ui/dist/swagger-initializer.js
+          sed -i "s|href=\"./|href=\"dist/|g" ./docs-dist/index.html
+          sed -i "s|src=\"./|src=\"dist/|g" ./docs-dist/index.html
+          sed -i "s|href=\"index|href=\"dist/index|g" ./docs-dist/index.html
           # Update current release
-          echo ${{ steps.swagger-ui.outputs.release_tag }} > swagger-ui.version
+          # echo ${{ steps.swagger-ui.outputs.release_tag }} > swagger-ui.version
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3

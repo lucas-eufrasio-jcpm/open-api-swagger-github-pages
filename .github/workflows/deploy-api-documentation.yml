@@ -86,10 +86,10 @@ jobs:
 
       - name: extract github pages artifact
         run: |
-          tar -xvf github-pages-artifacts-test/artifact.tar -C github-pages-artifacts-test
-          tar -xvf github-pages-artifacts-dev/artifact.tar -C github-pages-artifacts-dev
-          tar -xvf github-pages-artifacts-hml/artifact.tar -C github-pages-artifacts-hml
-          tar -xvf github-pages-artifacts-prd/artifact.tar -C github-pages-artifacts-prd
+          tar -xvf github-pages-artifacts-test/artifact.tar -C github-pages-artifacts-test || mkdir -p github-pages-artifacts-test
+          tar -xvf github-pages-artifacts-dev/artifact.tar -C github-pages-artifacts-dev || mkdir -p github-pages-artifacts-dev
+          tar -xvf github-pages-artifacts-hml/artifact.tar -C github-pages-artifacts-hml || mkdir -p github-pages-artifacts-hml
+          tar -xvf github-pages-artifacts-prd/artifact.tar -C github-pages-artifacts-prd || mkdir -p github-pages-artifacts-prd
 
       - name: List files
         run: ls -R

@@ -21,8 +21,16 @@ concurrency:
 jobs:
   deploy-docs:
     runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
 
       - name: Get Latest Swagger UI Release
         id: swagger-ui
@@ -61,14 +69,23 @@ jobs:
           # Update current release
           # echo ${{ steps.swagger-ui.outputs.release_tag }} > swagger-ui.version
 
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+      # - name: Deploy
+      #   uses: peaceiris/actions-gh-pages@v3
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: ./docs-dist
+      #     destination_dir: ./docs-dist
+      #     publish_branch: api-documentation-github-pages
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs-dist
-          destination_dir: ./docs-dist
-          publish_branch: api-documentation-github-pages
+          path: ./docs-dist
+    
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
       - run: echo "GH_REPO=$(echo ${{ github.repository }} | cut -d "/" -f 2)" >> $GITHUB_ENV
 
-      - run: echo "[Deploying to https://${{ github.repository_owner }}.github.io/${{ env.GH_REPO }}/${{ env.GATLING_OUTPUT_FOLDER }}](https://${{ github.repository_owner }}.github.io/${{ env.GH_REPO }}/docs-dist" >> "${GITHUB_STEP_SUMMARY}"
+      - run: echo "[Deploying to ${{ steps.deployment.outputs.page_url }}](${{ steps.deployment.outputs.page_url }}" >> "${GITHUB_STEP_SUMMARY}"

@@ -79,16 +79,16 @@ jobs:
 
           # temporary commands to clean duplicated folders
 
-          find ./github-pages-artifacts/test -mindepth 1 -type d -name test -prune -exec rm -rf {} \;
-          find ./github-pages-artifacts/dev -mindepth 1 -type d -name test -prune -exec rm -rf {} \;
-          find ./github-pages-artifacts/hml -mindepth 1 -type d -name test -prune -exec rm -rf {} \;
-          find ./github-pages-artifacts/prd -mindepth 1 -type d -name test -prune -exec rm -rf {} \;
-
           # colon means no-op
           mv github-pages-artifacts/test docs-dist/test || :
           mv github-pages-artifacts/dev docs-dist/dev || :
           mv github-pages-artifacts/hml docs-dist/hml || :
           mv github-pages-artifacts/prd docs-dist/prd || :
+
+          find ./docs-dist/test -mindepth 1 -type d -name test -prune -exec rm -rf {} \;
+          find ./docs-dist/dev -mindepth 1 -type d -name test -prune -exec rm -rf {} \;
+          find ./docs-dist/hml -mindepth 1 -type d -name test -prune -exec rm -rf {} \;
+          find ./docs-dist/prd -mindepth 1 -type d -name test -prune -exec rm -rf {} \;
 
           ls -Rla
 

@@ -75,11 +75,11 @@ jobs:
           ENVIRONMENT: ${{ inputs.environment || 'test' }}
         run: |
           # Creates the docs-dist folder
-          mkdir -p docs-dist
-          cp github-pages-artifacts/test docs-dist/test 
-          cp github-pages-artifacts/dev docs-dist/dev 
-          cp github-pages-artifacts/hml docs-dist/hml 
-          cp github-pages-artifacts/prd docs-dist/prd 
+          mkdir -p docs-dist docs-dist/test docs-dist/dev docs-dist/hml docs-dist/prd
+          cp github-pages-artifacts/test docs-dist/test
+          cp github-pages-artifacts/dev docs-dist/dev
+          cp github-pages-artifacts/hml docs-dist/hml
+          cp github-pages-artifacts/prd docs-dist/prd
           mkdir -p docs-dist/$ENVIRONMENT
           mv docs/openapi.json docs-dist/$ENVIRONMENT/openapi.json
           cp docs/api-documentation-index.html docs-dist/index.html

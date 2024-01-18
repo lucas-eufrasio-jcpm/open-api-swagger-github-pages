@@ -33,7 +33,7 @@ jobs:
         continue-on-error: true
         with:
           name: api-documentation-pages
-          path: .
+          path: oxi
 
       - name: List files
         run: ls -R

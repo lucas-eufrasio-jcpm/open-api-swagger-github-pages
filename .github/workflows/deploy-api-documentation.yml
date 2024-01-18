@@ -78,10 +78,10 @@ jobs:
           mkdir -p docs-dist docs-dist/test docs-dist/dev docs-dist/hml docs-dist/prd
 
           # colon means no-op
-          cp -r github-pages-artifacts/test docs-dist/test || :
-          cp -r github-pages-artifacts/dev docs-dist/dev || :
-          cp -r github-pages-artifacts/hml docs-dist/hml || :
-          cp -r github-pages-artifacts/prd docs-dist/prd || :
+          mv github-pages-artifacts/test docs-dist/test || :
+          mv github-pages-artifacts/dev docs-dist/dev || :
+          mv github-pages-artifacts/hml docs-dist/hml || :
+          mv github-pages-artifacts/prd docs-dist/prd || :
 
           ls -la
 

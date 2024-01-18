@@ -53,17 +53,15 @@ jobs:
         run: |
           # Creates the docs-dist folder
           mkdir -p docs-dist
-          mkdir -p swagger-ui
           # Download the release
           curl -sL -o $RELEASE_TAG https://api.github.com/repos/swagger-api/swagger-ui/tarball/$RELEASE_TAG
           # Extract the dist directory
-          tar -xzf $RELEASE_TAG --strip-components=1 -C ./swagger-ui $(tar -tzf $RELEASE_TAG | head -1 | cut -f1 -d"/")/dist
+          tar -xzf $RELEASE_TAG --strip-components=1 -C ./docs-dist $(tar -tzf $RELEASE_TAG | head -1 | cut -f1 -d"/")/dist
           rm $RELEASE_TAG
           # Move index.html to the docs-dist folder
-          mv swagger-ui/dist/index.html ./docs-dist/
-          mv swagger-ui/dist ./docs-dist/dist
-          # Fix references in swagger-ui/dist/swagger-initializer and index.html
-          sed -i "s|https://petstore.swagger.io/v2/swagger.json|$OPENAPI_FILE|g" swagger-ui/dist/swagger-initializer.js
+          mv docs-dist/dist/index.html docs-dist/index.html
+          # Fix references in docs-dist/dist/swagger-initializer and index.html
+          sed -i "s|https://petstore.swagger.io/v2/swagger.json|$OPENAPI_FILE|g" docs-dist/dist/swagger-initializer.js
           sed -i "s|href=\"./|href=\"dist/|g" ./docs-dist/index.html
           sed -i "s|src=\"./|src=\"dist/|g" ./docs-dist/index.html
           sed -i "s|href=\"index|href=\"dist/index|g" ./docs-dist/index.html

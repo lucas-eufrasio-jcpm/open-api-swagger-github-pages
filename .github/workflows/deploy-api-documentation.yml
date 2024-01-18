@@ -29,6 +29,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/download-artifact@v4
+        with:
+          name: api-documentation-pages
+          path: .
+
+      - name: List files
+        run: ls
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
@@ -76,6 +84,12 @@ jobs:
       #     publish_dir: ./docs-dist
       #     destination_dir: ./docs-dist
       #     publish_branch: api-documentation-github-pages
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: api-documentation-pages
+          path: ./docs-dist
+          if-no-files-found: warn
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

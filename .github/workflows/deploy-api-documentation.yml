@@ -13,10 +13,12 @@ jobs:
 
       - name: Get Latest Swagger UI Release
         id: swagger-ui
+        env:
+          CURRENT_SWAGGER_VERSION: v5.11.0
         run: |
           release_tag=$(curl -sL https://api.github.com/repos/swagger-api/swagger-ui/releases/latest | jq -r ".tag_name")
           echo "release_tag=$release_tag" >> $GITHUB_OUTPUT
-          current_tag=$(<swagger-ui.version)
+          current_tag=$CURRENT_SWAGGER_VERSION
           echo "current_tag=$current_tag" >> $GITHUB_OUTPUT
 
       - name: Copy openapi json spec to root

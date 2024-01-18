@@ -52,7 +52,7 @@ jobs:
           WORKFLOW_FILENAME: deploy-to-dev.yml
           ARTIFACT_NAME: github-pages
           ARTIFACT_FILENAME: github-pages.zip
-          UNZIP_DIR: github-pages-artifacts-test
+          UNZIP_DIR: github-pages-artifacts-dev
         with:
           script: |
             const script = require('./scripts/download-artifact-from-previous-run.js')
@@ -65,7 +65,7 @@ jobs:
           WORKFLOW_FILENAME: deploy-to-hml.yml
           ARTIFACT_NAME: github-pages
           ARTIFACT_FILENAME: github-pages.zip
-          UNZIP_DIR: github-pages-artifacts-test
+          UNZIP_DIR: github-pages-artifacts-hml
         with:
           script: |
             const script = require('./scripts/download-artifact-from-previous-run.js')
@@ -78,7 +78,7 @@ jobs:
           WORKFLOW_FILENAME: deploy-to-prd.yml
           ARTIFACT_NAME: github-pages
           ARTIFACT_FILENAME: github-pages.zip
-          UNZIP_DIR: github-pages-artifacts-test
+          UNZIP_DIR: github-pages-artifacts-prd
         with:
           script: |
             const script = require('./scripts/download-artifact-from-previous-run.js')

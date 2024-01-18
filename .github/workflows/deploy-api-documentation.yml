@@ -42,6 +42,9 @@ jobs:
             const script = require('./scripts/download-artifact-from-previous-run.js')
             await script({github, context, core})      
 
+      - name: extract github pages artifact
+        run: tar -xvf uia/artifact.tar -C uia
+
       - name: List files
         run: ls -R
 

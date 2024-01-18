@@ -89,4 +89,4 @@ jobs:
 
       - run: echo "GH_REPO=$(echo ${{ github.repository }} | cut -d "/" -f 2)" >> $GITHUB_ENV
 
-      - run: echo "[Deploying to ${{ steps.deployment.outputs.page_url }}](${{ steps.deployment.outputs.page_url }}" >> "${GITHUB_STEP_SUMMARY}"
+      - run: echo "[Deploying to ${{ steps.deployment.outputs.page_url }}](${{ steps.deployment.outputs.page_url }})" >> "${GITHUB_STEP_SUMMARY}"

@@ -83,6 +83,8 @@ jobs:
           cp -r github-pages-artifacts/hml docs-dist/hml || :
           cp -r github-pages-artifacts/prd docs-dist/prd || :
 
+          ls -la
+
           mkdir -p docs-dist/$ENVIRONMENT
           mv docs/openapi.json docs-dist/$ENVIRONMENT/openapi.json
           cp docs/api-documentation-index.html docs-dist/index.html

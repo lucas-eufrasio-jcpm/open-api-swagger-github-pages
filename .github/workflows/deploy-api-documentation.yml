@@ -77,6 +77,13 @@ jobs:
           # Creates the docs-dist folder
           mkdir -p docs-dist docs-dist/test docs-dist/dev docs-dist/hml docs-dist/prd
 
+          # temporary commands to clean duplicated folders
+
+          find ./github-pages-artifacts/test -mindepth 1 -type d -name test -prune -exec rm -rf {} \;
+          find ./github-pages-artifacts/dev -mindepth 1 -type d -name test -prune -exec rm -rf {} \;
+          find ./github-pages-artifacts/hml -mindepth 1 -type d -name test -prune -exec rm -rf {} \;
+          find ./github-pages-artifacts/prd -mindepth 1 -type d -name test -prune -exec rm -rf {} \;
+
           # colon means no-op
           mv github-pages-artifacts/test docs-dist/test || :
           mv github-pages-artifacts/dev docs-dist/dev || :

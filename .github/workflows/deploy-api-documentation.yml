@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  updateSwagger:
+  deploy-docs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,7 +25,7 @@ jobs:
         run: cp docs/openapi.json openapi.json
 
       - name: Update Swagger UI
-        if: steps.swagger-ui.outputs.current_tag != steps.swagger-ui.outputs.release_tag
+        # if: steps.swagger-ui.outputs.current_tag != steps.swagger-ui.outputs.release_tag
         env:
           RELEASE_TAG: ${{ steps.swagger-ui.outputs.release_tag }}
           OPENAPI_FILE: "openapi.json"
@@ -53,7 +53,9 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ${{ github.workspace }}/docs-dist
+          publish_dir: ./docs-dist
+          destination_dir: ./docs-dist
+          publish_branch: api-documentation-github-pages
 
       - run: echo "GH_REPO=$(echo ${{ github.repository }} | cut -d "/" -f 2)" >> $GITHUB_ENV
 

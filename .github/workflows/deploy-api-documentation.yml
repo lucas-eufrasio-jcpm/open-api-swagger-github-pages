@@ -83,7 +83,7 @@ jobs:
           mv github-pages-artifacts/hml docs-dist/hml || :
           mv github-pages-artifacts/prd docs-dist/prd || :
 
-          ls -la
+          ls -Rla
 
           mkdir -p docs-dist/$ENVIRONMENT
           mv docs/openapi.json docs-dist/$ENVIRONMENT/openapi.json

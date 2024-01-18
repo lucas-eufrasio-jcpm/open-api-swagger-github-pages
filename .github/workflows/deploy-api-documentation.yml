@@ -29,10 +29,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v4
+      - name: Download artifact
+        uses: actions/github-script@v6
         continue-on-error: true
+        env:
+          WORKFLOW_FILENAME: deploy-api-documentation.yml
+          ARTIFACT_NAME: github-pages
+          ARTIFACT_FILENAME: github-pages.zip
+          UNZIP_DIR: uia
         with:
-          name: github-pages
+          script: |
+            const script = require('./scripts/download-artifact-from-previous-run.js')
+            await script({github, context, core})      
 
       - name: List files
         run: ls -R
@@ -85,11 +93,11 @@ jobs:
       #     destination_dir: ./docs-dist
       #     publish_branch: api-documentation-github-pages
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: api-documentation-pages
-          path: ./docs-dist
-          if-no-files-found: warn
+      # - uses: actions/upload-artifact@v4
+      #   with:
+      #     name: api-documentation-pages
+      #     path: ./docs-dist
+      #     if-no-files-found: warn
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

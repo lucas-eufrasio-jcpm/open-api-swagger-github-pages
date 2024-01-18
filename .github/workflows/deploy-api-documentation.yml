@@ -75,20 +75,21 @@ jobs:
           ENVIRONMENT: ${{ inputs.environment || 'test' }}
         run: |
           # Creates the docs-dist folder
-          mkdir -p docs-dist docs-dist/test docs-dist/dev docs-dist/hml docs-dist/prd
-
-          # temporary commands to clean duplicated folders
+          mkdir -p docs-dist docs-dist/test docs-dist/dev docs-dist/hml docs-dist/prd       
 
           # colon means no-op
-          mv github-pages-artifacts/test docs-dist/test || :
-          mv github-pages-artifacts/dev docs-dist/dev || :
-          mv github-pages-artifacts/hml docs-dist/hml || :
-          mv github-pages-artifacts/prd docs-dist/prd || :
+          mv -v github-pages-artifacts/test/* docs-dist/test/ || :
+          mv -v github-pages-artifacts/dev/* docs-dist/dev/ || :
+          mv -v github-pages-artifacts/hml/* docs-dist/hml/ || :
+          mv -v github-pages-artifacts/prd/* docs-dist/prd/ || :
 
+          ls -Rla
+  
+          # temporary commands to clean duplicated folders
           find ./docs-dist/test -mindepth 1 -type d -name test -prune -exec rm -rf {} \;
-          find ./docs-dist/dev -mindepth 1 -type d -name test -prune -exec rm -rf {} \;
-          find ./docs-dist/hml -mindepth 1 -type d -name test -prune -exec rm -rf {} \;
-          find ./docs-dist/prd -mindepth 1 -type d -name test -prune -exec rm -rf {} \;
+          find ./docs-dist/dev -mindepth 1 -type d -name dev -prune -exec rm -rf {} \;
+          find ./docs-dist/hml -mindepth 1 -type d -name hml -prune -exec rm -rf {} \;
+          find ./docs-dist/prd -mindepth 1 -type d -name prd -prune -exec rm -rf {} \;
 
           ls -Rla
 

@@ -60,6 +60,7 @@ jobs:
           tar -xzf $RELEASE_TAG --strip-components=1 -C ./swagger-ui $(tar -tzf $RELEASE_TAG | head -1 | cut -f1 -d"/")/dist
           rm $RELEASE_TAG
           # Move index.html to the docs-dist folder
+          mv swagger-ui/dist ./docs-dist/dist
           mv swagger-ui/dist/index.html ./docs-dist/
           # Fix references in swagger-ui/dist/swagger-initializer and index.html
           sed -i "s|https://petstore.swagger.io/v2/swagger.json|$OPENAPI_FILE|g" swagger-ui/dist/swagger-initializer.js

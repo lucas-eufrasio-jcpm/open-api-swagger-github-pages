@@ -58,14 +58,14 @@ jobs:
             const script = require('./scripts/download-artifact-from-previous-run.js')
             await script({github, context, core})
 
-      - name: Download artifact from hml
+      - name: Download artifact from stg
         uses: actions/github-script@v6
         continue-on-error: true
         env:
-          WORKFLOW_FILENAME: deploy-to-hml.yml
+          WORKFLOW_FILENAME: deploy-to-stg.yml
           ARTIFACT_NAME: github-pages
           ARTIFACT_FILENAME: github-pages.zip
-          UNZIP_DIR: github-pages-artifacts-hml
+          UNZIP_DIR: github-pages-artifacts-stg
         with:
           script: |
             const script = require('./scripts/download-artifact-from-previous-run.js')
@@ -88,7 +88,7 @@ jobs:
         run: |
           tar -xvf github-pages-artifacts-test/artifact.tar -C github-pages-artifacts-test || mkdir -p github-pages-artifacts-test
           tar -xvf github-pages-artifacts-dev/artifact.tar -C github-pages-artifacts-dev || mkdir -p github-pages-artifacts-dev
-          tar -xvf github-pages-artifacts-hml/artifact.tar -C github-pages-artifacts-hml || mkdir -p github-pages-artifacts-hml
+          tar -xvf github-pages-artifacts-stg/artifact.tar -C github-pages-artifacts-stg || mkdir -p github-pages-artifacts-stg
           tar -xvf github-pages-artifacts-prd/artifact.tar -C github-pages-artifacts-prd || mkdir -p github-pages-artifacts-prd
 
       - name: List files
@@ -118,12 +118,12 @@ jobs:
           ENVIRONMENT: ${{ inputs.environment || 'test' }}
         run: |
           # Creates the docs-dist folder
-          mkdir -p docs-dist docs-dist/test docs-dist/dev docs-dist/hml docs-dist/prd       
+          mkdir -p docs-dist docs-dist/test docs-dist/dev docs-dist/stg docs-dist/prd       
 
           # colon means no-op
           mv -v github-pages-artifacts-test/test/* docs-dist/test/ || :
           mv -v github-pages-artifacts-dev/dev/* docs-dist/dev/ || :
-          mv -v github-pages-artifacts-hml/hml/* docs-dist/hml/ || :
+          mv -v github-pages-artifacts-stg/stg/* docs-dist/stg/ || :
           mv -v github-pages-artifacts-prd/prd/* docs-dist/prd/ || :
 
           ls -Rla
@@ -131,7 +131,7 @@ jobs:
           # temporary commands to clean duplicated folders
           find ./docs-dist/test -mindepth 1 -type d -name test -prune -exec rm -rf {} \;
           find ./docs-dist/dev -mindepth 1 -type d -name dev -prune -exec rm -rf {} \;
-          find ./docs-dist/hml -mindepth 1 -type d -name hml -prune -exec rm -rf {} \;
+          find ./docs-dist/stg -mindepth 1 -type d -name stg -prune -exec rm -rf {} \;
           find ./docs-dist/prd -mindepth 1 -type d -name prd -prune -exec rm -rf {} \;
 
           ls -Rla

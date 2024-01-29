@@ -1,4 +1,5 @@
 name: Deploy API Documentation
+
 on:
   push:
     branches:
@@ -11,7 +12,10 @@ on:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
+  actions: read
   contents: read
+  repository-projects: read
+  pull-requests: read
   pages: write
   id-token: write
 
@@ -37,8 +41,9 @@ jobs:
         continue-on-error: true
         env:
           WORKFLOW_FILENAME: deploy-api-documentation.yml
-          ARTIFACT_NAME: github-pages
-          ARTIFACT_FILENAME: github-pages.zip
+          # ARTIFACT_NAME: github-pages
+          ARTIFACT_NAME: api-documentation-pages
+          ARTIFACT_FILENAME: api-documentation-pages.zip
           UNZIP_DIR: github-pages-artifacts-test
         with:
           script: |
@@ -50,8 +55,9 @@ jobs:
         continue-on-error: true
         env:
           WORKFLOW_FILENAME: deploy-to-dev.yml
-          ARTIFACT_NAME: github-pages
-          ARTIFACT_FILENAME: github-pages.zip
+          # ARTIFACT_NAME: github-pages
+          ARTIFACT_NAME: api-documentation-pages
+          ARTIFACT_FILENAME: api-documentation-pages.zip
           UNZIP_DIR: github-pages-artifacts-dev
         with:
           script: |
@@ -63,8 +69,9 @@ jobs:
         continue-on-error: true
         env:
           WORKFLOW_FILENAME: deploy-to-stg.yml
-          ARTIFACT_NAME: github-pages
-          ARTIFACT_FILENAME: github-pages.zip
+          # ARTIFACT_NAME: github-pages
+          ARTIFACT_NAME: api-documentation-pages
+          ARTIFACT_FILENAME: api-documentation-pages.zip
           UNZIP_DIR: github-pages-artifacts-stg
         with:
           script: |
@@ -76,15 +83,16 @@ jobs:
         continue-on-error: true
         env:
           WORKFLOW_FILENAME: deploy-to-prd.yml
-          ARTIFACT_NAME: github-pages
-          ARTIFACT_FILENAME: github-pages.zip
+          # ARTIFACT_NAME: github-pages
+          ARTIFACT_NAME: api-documentation-pages
+          ARTIFACT_FILENAME: api-documentation-pages.zip
           UNZIP_DIR: github-pages-artifacts-prd
         with:
           script: |
             const script = require('./scripts/download-artifact-from-previous-run.js')
             await script({github, context, core})
 
-      - name: extract github pages artifact
+      - name: Extract github pages artifact
         run: |
           tar -xvf github-pages-artifacts-test/artifact.tar -C github-pages-artifacts-test || mkdir -p github-pages-artifacts-test
           tar -xvf github-pages-artifacts-dev/artifact.tar -C github-pages-artifacts-dev || mkdir -p github-pages-artifacts-dev
@@ -110,12 +118,19 @@ jobs:
       - name: Copy openapi json spec to root
         run: cp docs/openapi.json openapi.json
 
+      - name: Generate deploy timestamp
+        id: deploy-timestamp
+        run: |
+          timestamp=$(date +%s)
+          echo "value=$timestamp" >> $GITHUB_OUTPUT
+
       - name: Update Swagger UI
-        # if: steps.swagger-ui.outputs.current_tag != steps.swagger-ui.outputs.release_tag
         env:
           RELEASE_TAG: ${{ steps.swagger-ui.outputs.release_tag }}
           OPENAPI_FILE: "openapi.json"
           ENVIRONMENT: ${{ inputs.environment || 'test' }}
+          APP_NAME_FOR_ROOT_PAGE: ${{ vars.APP_NAME }}
+          APP_NAME_FOR_SWAGGER_PAGES: "${{ vars.APP_NAME }} ${{ inputs.environment || 'test' }} - ${{ steps.deploy-timestamp.outputs.value }}"
         run: |
           # Creates the docs-dist folder
           mkdir -p docs-dist docs-dist/test docs-dist/dev docs-dist/stg docs-dist/prd       
@@ -138,7 +153,13 @@ jobs:
 
           mkdir -p docs-dist/$ENVIRONMENT
           mv docs/openapi.json docs-dist/$ENVIRONMENT/openapi.json
+
+          cp .github/pages/_headers docs-dist/_headers
+          cp .github/pages/_headers docs-dist/$ENVIRONMENT/_headers
+
           cp docs/api-documentation-index.html docs-dist/index.html
+          sed -i "s|Portal|$APP_NAME_FOR_ROOT_PAGE|g" docs-dist/index.html
+
           # Download the release
           curl -sL -o $RELEASE_TAG https://api.github.com/repos/swagger-api/swagger-ui/tarball/$RELEASE_TAG
           # Extract the dist directory
@@ -151,22 +172,10 @@ jobs:
           sed -i "s|href=\"./|href=\"../dist/|g" docs-dist/$ENVIRONMENT/index.html
           sed -i "s|src=\"./|src=\"../dist/|g" docs-dist/$ENVIRONMENT/index.html
           sed -i "s|href=\"index|href=\"../dist/index|g" docs-dist/$ENVIRONMENT/index.html
-          # Update current release
-          # echo ${{ steps.swagger-ui.outputs.release_tag }} > swagger-ui.version
 
-      # - name: Deploy
-      #   uses: peaceiris/actions-gh-pages@v3
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      #     publish_dir: ./docs-dist
-      #     destination_dir: ./docs-dist
-      #     publish_branch: api-documentation-github-pages
+          sed -i '/<meta charset="UTF-8">/a\  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" \/>\n  <meta http-equiv="Pragma" content="no-cache" \/>\n  <meta http-equiv="Expires" content="0" \/>' docs-dist/$ENVIRONMENT/index.html
 
-      # - uses: actions/upload-artifact@v4
-      #   with:
-      #     name: api-documentation-pages
-      #     path: ./docs-dist
-      #     if-no-files-found: warn
+          sed -i "s|Swagger UI|$APP_NAME_FOR_SWAGGER_PAGES|g" docs-dist/$ENVIRONMENT/index.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
@@ -176,6 +185,22 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Prepare folder to save in artifacts for future deploys
+        run: |
+          mkdir -p /tmp/docs-artifacts
+          mkdir -p /tmp/docs-artifacts-to-upload
+          cp -r ./docs-dist/* /tmp/docs-artifacts
+          find /tmp/docs-artifacts -type f ! -iname "*.json" ! -iname "*.html" -delete
+          tar --dereference --hard-dereference --directory "/tmp/docs-artifacts" -cvf "/tmp/docs-artifacts-to-upload/artifact.tar" --exclude=.git --exclude=.github .
+
+      # Used exclusively for deploys between cycles
+      - uses: actions/upload-artifact@v4
+        with:
+          name: api-documentation-pages
+          path: /tmp/docs-artifacts-to-upload
+          if-no-files-found: warn
+          retention-days: 30
 
       - run: echo "GH_REPO=$(echo ${{ github.repository }} | cut -d "/" -f 2)" >> $GITHUB_ENV
 
